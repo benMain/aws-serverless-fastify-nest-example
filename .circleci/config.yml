@@ -40,9 +40,9 @@ jobs:
             cp .circleci/aws_config dist/ 
         
       - persist_to_workspace:
-          root: .
+          root: dist
           paths:
-            - dist
+            - **
 
   deploy:
     docker:
@@ -57,24 +57,24 @@ jobs:
       - run:
           name: Examine Temp
           command: |
-                ls -ll /tmp/workspace/circleci/
+                ls -a /tmp/workspace/
       - run:
           name: Cloudformation Deploy
           command: |
                 mkdir ~/.aws
-                mv /tmp/workspace/circleci//aws_config ~/.aws/config
+                mv /tmp/workspace/aws_config ~/.aws/config
                 echo "[default]" > ~/.aws/credentials
                 echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
                 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
                 
                 aws cloudformation package \
-                --template-file /tmp/workspace/circleci/aws-serverless-fastify-nest-example.yaml \
+                --template-file /tmp/workspace/aws-serverless-fastify-nest-example.yaml \
                 --s3-bucket aws-serverless-fastify-nest-example-us-east-1
-                --output-template-file /tmp/workspace/circleci/aws-serverless-fastify-nest-example.yaml
+                --output-template-file /tmp/workspace/aws-serverless-fastify-nest-example.yaml
                 
                 aws cloudformation deploy --no-fail-on-empty-changeset \
                 --region us-east-1 \
-                --template-file /tmp/workspace/circleci/aws-serverless-fastify-nest-example.yaml \
+                --template-file /tmp/workspace/aws-serverless-fastify-nest-example.yaml \
                 --stack-name aws-serverless-fastify-nest-example \
                 --capabilities CAPABILITY_NAMED_IAM
 workflows:
