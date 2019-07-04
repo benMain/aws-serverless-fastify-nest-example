@@ -29,6 +29,10 @@ jobs:
           command: |
             npm run build
       - run:
+          name: ZIP
+          command: |
+            zip -r dist/aws-serverless-fastify-nest-example.zip dist/ node_modules
+      - run:
           name: Copy Cloudformation
           command: |
             cp cfn/aws-serverless-fastify-nest-example.yaml dist/
