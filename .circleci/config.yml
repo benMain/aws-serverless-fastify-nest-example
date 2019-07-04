@@ -57,13 +57,10 @@ jobs:
                 echo "[default]" > ~/.aws/credentials
                 echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
                 echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
-
                 aws cloudformation package \
                 --template-file /tmp/workspace/aws-serverless-fastify-nest-example.yaml \
                 --s3-bucket aws-serverless-fastify-nest-example-us-east-1
                 --output-template-file /tmp/workspace/aws-serverless-fastify-nest-example.yaml
-
-
                 aws cloudformation deploy --no-fail-on-empty-changeset \
                 --region us-east-1 \
                 --template-file /tmp/workspace/aws-serverless-fastify-nest-example.yaml \
