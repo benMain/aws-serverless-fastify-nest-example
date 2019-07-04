@@ -25,9 +25,10 @@ jobs:
             - ./node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
       - run:
-          name: Build
+          name: Build And Prune
           command: |
             npm run build
+            npm prune --production
       - run:
           name: ZIP
           command: |
@@ -53,6 +54,10 @@ jobs:
           command: sudo pip install awscli
       - attach_workspace:
           at: /tmp/workspace
+      - run:
+          name: Examine Temp
+          command: |
+                ls -ll /tmp/workspace/
       - run:
           name: Cloudformation Deploy
           command: |
