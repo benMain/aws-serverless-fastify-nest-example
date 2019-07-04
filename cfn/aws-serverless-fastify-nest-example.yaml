@@ -1,0 +1,51 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Fastify Nest API
+Parameters:
+
+  CertificateArn:
+    Type: String
+    Description: SSL Certificate Arn for the Custom Domain Name
+
+  DomainName:
+    Type: String
+    Description: The Fully Qualified Domain Name of the API
+
+  TargetHostedZoneId:
+    Type: String
+    Description: "The Hosted Zone where The API Gateway will deploy"
+
+Resources:
+  FastifyNestExampleApplicationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "aws-serverless-fastify-nest-example"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  FastifyNestExampleApplicationApiLamda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/lambda-entry-point.handler
+      Runtime: nodejs10.x
+      CodeUri: aws-serverless-fastify-nest-example.zip
+      MemorySize: 3008
+      Timeout: 900
+      Role: !GetAtt FastifyNestExampleApplicationRole.Arn
+      Events:
+        ProxyRest:
+          Type: Api
+          Properties:
+            Path: /foo/{proxy+}
+

@@ -1,0 +1,82 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:8.16.0
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package.json" }}
+          # fallback to using the latest cache if no exact match is found
+          - v1-dependencies-
+
+      - run:
+          name: Install Dependencies
+          command: |
+            npm install
+      - save_cache:
+          paths:
+            - ./node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run:
+          name: Build
+          command: |
+            npm run build
+      - run:
+          name: Copy Cloudformation
+          command: |
+            cp cfn/aws-serverless-fastify-nest-example.yaml dist/
+            cp .circleci/aws_config dist/ 
+        
+      - persist_to_workspace:
+          root: .
+          paths:
+            - dist
+
+  deploy:
+    docker:
+      - image: circleci/python:2.7-jessie
+    working_directory: ~/tmp
+    steps:
+      - run:
+          name: Install awscli
+          command: sudo pip install awscli
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Cloudformation Deploy
+          command: |
+                mkdir ~/.aws
+                mv /tmp/workspace/aws_config ~/.aws/config
+                echo "[default]" > ~/.aws/credentials
+                echo "aws_access_key_id = ${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials
+                echo "aws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
+
+                aws cloudformation package \
+                --template-file /tmp/workspace/aws-serverless-fastify-nest-example.yaml \
+                --s3-bucket aws-serverless-fastify-nest-example-us-east-1
+                --output-template-file /tmp/workspace/aws-serverless-fastify-nest-example.yaml
+
+
+                aws cloudformation deploy --no-fail-on-empty-changeset \
+                --region us-east-1 \
+                --template-file /tmp/workspace/aws-serverless-fastify-nest-example.yaml \
+                --stack-name aws-serverless-fastify-nest-example \
+                --capabilities CAPABILITY_NAMED_IAM
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              - master
