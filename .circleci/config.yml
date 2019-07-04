@@ -69,7 +69,7 @@ jobs:
                 
                 aws cloudformation package \
                 --template-file /tmp/workspace/dist/aws-serverless-fastify-nest-example.yaml \
-                --s3-bucket aws-serverless-fastify-nest-example-us-east-1
+                --s3-bucket aws-serverless-fastify-nest-example-us-east-1 \
                 --output-template-file /tmp/workspace/dist/aws-serverless-fastify-nest-example.yaml
                 
                 aws cloudformation deploy --no-fail-on-empty-changeset \

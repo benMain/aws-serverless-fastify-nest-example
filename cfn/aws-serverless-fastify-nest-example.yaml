@@ -2,19 +2,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Fastify Nest API
-Parameters:
-
-  CertificateArn:
-    Type: String
-    Description: SSL Certificate Arn for the Custom Domain Name
-
-  DomainName:
-    Type: String
-    Description: The Fully Qualified Domain Name of the API
-
-  TargetHostedZoneId:
-    Type: String
-    Description: "The Hosted Zone where The API Gateway will deploy"
 
 Resources:
   FastifyNestExampleApplicationRole:
