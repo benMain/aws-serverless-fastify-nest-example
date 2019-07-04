@@ -40,9 +40,9 @@ jobs:
             cp .circleci/aws_config dist/ 
         
       - persist_to_workspace:
-          root: dist
+          root: .
           paths:
-            - *
+            - dist/*
 
   deploy:
     docker:
